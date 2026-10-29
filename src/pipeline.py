@@ -1,4 +1,5 @@
-"""Roda o pipeline inteiro: ingestão -> refined -> marts."""
+"""Roda o pipeline inteiro: ingestão -> refined -> marts -> painel."""
+import dashboard
 import ingestao
 import marts
 import refined
@@ -10,3 +11,5 @@ if __name__ == "__main__":
     refined.main()
     print("\n== marts")
     marts.main()
+    print("\n== painel")
+    dashboard.main()

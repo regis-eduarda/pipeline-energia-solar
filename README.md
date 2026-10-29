@@ -54,6 +54,7 @@ Tudo fica em `data/pipeline.duckdb`. O SQL de cada camada está em
 | `marts.conexoes_por_ano` | um ano | 20 |
 | `marts.conexoes_por_mes` | um mês entre 2021 e 2024 | 48 |
 | `marts.classe_por_regiao` | uma classe de consumo dentro de uma região | 42 |
+| `marts.classe_por_regiao_resumo` | o mesmo, com as classes pequenas juntas em "Outras" (para o painel) | 25 |
 
 O JOIN entre as fontes é pelo código IBGE do município
 (`CodMunicipioIbge` na ANEEL, `id` no IBGE). Todos os sistemas acharam o
@@ -83,13 +84,25 @@ python src/pipeline.py
 pytest
 ```
 
-`pipeline.py` baixa os arquivos (~110 MB), monta a refined e os marts e
-mostra as contagens de cada etapa. Se os arquivos já existirem em
+`pipeline.py` baixa os arquivos (~110 MB), monta a refined e os marts, gera
+o painel e mostra as contagens de cada etapa. Se os arquivos já existirem em
 `data/raw/`, o download é pulado. Também dá para rodar cada etapa sozinha:
-`python src/ingestao.py`, `python src/refined.py`, `python src/marts.py`.
+`python src/ingestao.py`, `python src/refined.py`, `python src/marts.py`,
+`python src/dashboard.py`.
 
 Os testes (`tests/`) usam dado inventado num DuckDB em memória e não abrem o
 banco do projeto.
+
+## Painel
+
+[`dashboard/painel.html`](dashboard/painel.html) é um arquivo HTML único
+que abre direto no navegador (baixe e dê dois cliques). Ele tem um gráfico por
+pergunta, mostra os valores ao passar o mouse e tem uma tabela embaixo de
+cada gráfico. Quem gera o painel é `src/dashboard.py`, que lê **só as
+tabelas `marts.*`** e só faz `select` e `order by`: nenhuma conta acontece no
+painel.
+
+![Painel](dashboard/painel.png)
 
 ## Resultados
 
@@ -150,6 +163,12 @@ o resultado. Onde ela errou ou assumiu algo que eu não pedi:
    `2022-06-01 00:00:00`. Vi olhando o resultado e mudei para data.
 5. **Função que não existe mais.** Um comando de conferência usou `fetchone()`,
    que saiu na versão 2.0 do DuckDB. Quebrou na hora; troquei por `fetchall()`.
+6. **Soma de valores arredondados.** A primeira versão de
+   `marts.classe_por_regiao_resumo` somava a potência de
+   `marts.classe_por_regiao`, que já vem arredondada em MW. No dado real a
+   diferença era pequena, mas o teste com dado inventado (sistemas de poucos kW)
+   pegou: tudo virou 0,0 MW e a participação deu `NaN`. Passei a calcular
+   direto da refined, em kW.
 
 Conferências que passaram:
 - a soma da população dá 203.080.756, o número oficial do Censo 2022;
@@ -157,4 +176,6 @@ Conferências que passaram:
   refined;
 - a potência total é a mesma no raw e na refined (54,097 GW);
 - quebrando o SQL de propósito (tirando o `trim` e o filtro de potência 0),
-  6 dos 14 testes falharam.
+  6 dos 14 testes da época falharam;
+- o resumo por região do painel fecha com `marts.classe_por_regiao` em todas
+  as regiões (diferença máxima de 0,1 MW, de arredondamento).
