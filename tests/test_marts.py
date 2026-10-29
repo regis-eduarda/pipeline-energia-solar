@@ -41,6 +41,20 @@ def test_conexoes_por_mes(con):
     ]
 
 
+def test_resumo_junta_classes_pequenas_em_outras(con):
+    # no dado inventado, REBR é a única classe fora das quatro grandes
+    assert linhas(
+        con,
+        "select regiao, classe, participacao_pct from marts.classe_por_regiao_resumo "
+        "order by regiao, ordem",
+    ) == [
+        ("Centro-Oeste", "Residencial", 50.0),
+        ("Centro-Oeste", "Rural", 50.0),
+        ("Sul", "Comercial", 60.0),
+        ("Sul", "Outras", 40.0),
+    ]
+
+
 def test_participacao_por_regiao(con):
     assert linhas(
         con,
