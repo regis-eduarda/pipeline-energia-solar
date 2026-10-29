@@ -74,7 +74,7 @@ seu município.
 Testado no Windows com Python 3.12.
 
 ```bash
-git clone https://github.com/<seu-usuario>/pipeline-energia-solar.git
+git clone https://github.com/regis-eduarda/pipeline-energia-solar.git
 cd pipeline-energia-solar
 python -m venv .venv
 .venv\Scripts\activate
