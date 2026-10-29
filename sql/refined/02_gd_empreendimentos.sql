@@ -2,8 +2,8 @@
 -- perguntas usam.
 --
 -- O que muda em relação ao raw:
---   * CPF/CNPJ, nome do titular e CEP ficam de fora (dado pessoal, e nenhuma
---     pergunta precisa deles);
+--   * CPF/CNPJ, nome do titular e CEP ficam de fora. A ANEEL já publica os dois
+--     primeiros mascarados (***.477.072-**), mas nenhuma pergunta usa eles;
 --   * a classe de consumo perde espaços sobrando ("REBR " virava uma classe a mais);
 --   * datas com ano antes de 2000 viram nulo (56 sistemas vêm com 1900, que é
 --     data de preenchimento e não data real);
